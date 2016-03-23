@@ -1,6 +1,7 @@
 ﻿namespace BowlingGame.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     using BowlingGame.Models;
@@ -9,77 +10,129 @@
 
     public class BowlingGameTests
     {
-        [Test]
-        public void When_Creating_A_New_Game()
+        [TestFixture]
+        public class Given_Adding_A_Frame_To_New_Game
         {
-            var subject = new Game();
+            private Game game;
 
-            Assert.That(subject.Frames, Is.Not.Null);
+            [SetUp]
+            public void When_Creating_A_New_Frame()
+            {
+                this.game = new Game();
+                this.game.CreateFrame();
+            }
+
+            [Test]
+            public void Then_A_Frame_Has_Been_Added()
+            {
+                Assert.That(this.game.Frames, Has.Count.EqualTo(1));
+            }
         }
 
-        [Test]
-        public void When_Creating_A_New_Frame()
+        [TestFixture]
+        public class Given_A_Frame_Is_Played_Successfully
         {
-            var subject = new Game();
-            subject.CreateFrame();
+            private Frame result;
 
-            Assert.That(subject.Frames, Has.Count.EqualTo(1));
+            [SetUp]
+            public void When_Two_Throw_Attempts_Have_Been_Made()
+            {
+                var game = new Game();
+                game.CreateFrame();
+                game.Throw(4);
+                game.Throw(2);
+
+                this.result = game.Frames.Last();
+            }
+
+            [Test]
+            public void Then_The_Score_Is_Calculated_Correctly()
+            {
+                Assert.That(this.result.CalculateScore(), Is.EqualTo(6));
+            }
         }
 
-        [Test]
-        public void When_A_Frame_Is_Played_Successfully()
+        [TestFixture]
+        public class Given_Overplaying_A_Frame
         {
-            var subject = new Game();
-            subject.CreateFrame();
-            subject.Throw(6);
-            subject.Throw(2);
+            private Game game;
 
-            var result = subject.Frames.Last();
+            [SetUp]
+            public void When_Exceeding_Number_Of_Throw_Attempts()
+            {
+                this.game = new Game();
+                this.game.CreateFrame();
+                this.game.Throw(6);
+                this.game.Throw(2);
+            }
 
-            Assert.That(result.CalculateScore(), Is.EqualTo(8));
-            Assert.That(result.IsSpare, Is.False);
+            [Test]
+            public void Then_An_Inavlid_Operation_Is_Thrown()
+            {
+                Assert.Throws<InvalidOperationException>(() => this.game.Throw(1));
+            }
         }
 
-        [Test]
-        public void When_A_Frame_Is_Played_Which_Exceeds_Number_Of_Attempts()
+        [TestFixture]
+        public class Given_A_Spare_Is_Thrown
         {
-            var subject = new Game();
-            subject.CreateFrame();
-            subject.Throw(6);
-            subject.Throw(2);
+            private Frame result;
 
-            Assert.Throws<InvalidOperationException>(() => subject.Throw(1));
+            [SetUp]
+            public void When_All_Ten_Pins_Are_Knocked_Down_With_Two_Attempts()
+            {
+                var subject = new Game();
+                subject.CreateFrame();
+                subject.Throw(8);
+                subject.Throw(2);
+
+                this.result = subject.Frames.Last();
+            }
+
+            [Test]
+            public void Then_The_Score_Is_Correct()
+            {
+                Assert.That(this.result.CalculateScore(), Is.EqualTo(10));
+            }
+
+            [Test]
+            public void Then_The_Frame_Is_A_Spare()
+            {
+                Assert.That(this.result.IsSpare, Is.True);
+            }
         }
 
-        [Test]
-        public void When_All_Ten_Pins_Are_Knocked_Down_With_Two_Attempts()
+        [TestFixture]
+        public class Given_Calculating_The_Bonus_For_A_Spare
         {
-            var subject = new Game();
-            subject.CreateFrame();
-            subject.Throw(8);
-            subject.Throw(2);
+            private List<Frame> frames;
 
-            var result = subject.Frames.Last();
+            [SetUp]
+            public void When_Throwing_A_Spare_And_A_Normal_Throw()
+            {
+                var subject = new Game();
+                subject.CreateFrame();
+                subject.Throw(8);
+                subject.Throw(2);
 
-            Assert.That(result.CalculateScore(), Is.EqualTo(10));
-            Assert.That(result.IsSpare, Is.True);
-        }
+                subject.CreateFrame();
+                subject.Throw(1);
+                subject.Throw(3);
 
-        [Test]
-        public void When_Throwing_A_Spare_Bonus_Points_Are_Applied()
-        {
-            var subject = new Game();
-            subject.CreateFrame();
-            subject.Throw(8);
-            subject.Throw(2);
+                this.frames = subject.Frames;
+            }
 
-            subject.CreateFrame();
-            subject.Throw(1);
-            subject.Throw(3);
+            [Test]
+            public void Then_The_First_Frames_Points_Are_Updated_To_Reflect_Bonus()
+            {
+                var previousFrame = this.frames.First();
 
-            var result = subject.Frames.First();
+                Assert.That(previousFrame.CalculateScore(), Is.EqualTo(13));
+            }
 
-            Assert.That(result.CalculateScore(), Is.EqualTo(13));
+            [Test]
+            public void Then_The_Current_Frame_Points_Are_Set_Correctly()
+            { }
         }
     }
 }
