@@ -44,7 +44,7 @@
   <ItemGroup>
     <Compile Include="Models\Frame.cs" />
     <Compile Include="Models\Game.cs" />
-    <Compile Include="Models\Throw.cs" />
+    <Compile Include="Models\Roll.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

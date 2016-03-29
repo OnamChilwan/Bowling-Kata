@@ -1,6 +1,5 @@
 ﻿namespace BowlingGame.Models
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -8,26 +7,62 @@
     {
         public Game()
         {
-            this.Frames = new List<Frame>();
+            this.Frames = new List<Frame> { new Frame() };
         }
 
-        public void Throw(int numberOfPinsKnocked)
+        public void Roll(int numberOfPinsKnocked)
         {
             var currentFrame = this.Frames.Last();
 
-            if (currentFrame.HasExceededNumberOfTries())
+            if (currentFrame.IsComplete())
             {
-                throw new InvalidOperationException("Number of attempts / throws exceeded for frame.");
+                currentFrame = new Frame();
+                this.Frames.Add(currentFrame);
             }
 
-            currentFrame.RecordThrowAttempt(new Throw(numberOfPinsKnocked));
+            currentFrame.RecordRollResult(new Roll(numberOfPinsKnocked));
+
+            this.ApplySpareBonusPoints();
+            this.ApplyStrikeBonusPoints();
         }
 
-        public void CreateFrame()
+        public int CalculateScore()
         {
-            this.Frames.Add(new Frame());
+            return this.Frames.Sum(x => x.TotalPoints);
         }
 
-        public List<Frame> Frames { get; private set; }
+        private void ApplySpareBonusPoints()
+        {
+            var currentFrame = this.Frames.Last();
+            var previousFrame = this.GetPreviousFrame();
+
+            if (previousFrame != null && previousFrame.IsSpare() && currentFrame.IsComplete())
+            {
+                previousFrame.ApplyBonusPoints(currentFrame.Attempts.First().NumberOfPinsKnocked);
+            }
+        }
+
+        private void ApplyStrikeBonusPoints()
+        {
+            var currentFrame = this.Frames.Last();
+            var previousFrame = this.GetPreviousFrame();
+
+            if (previousFrame != null && previousFrame.IsStrike() && currentFrame.IsComplete())
+            {
+                previousFrame.ApplyBonusPoints(currentFrame.NumberOfPinsKnocked);
+            }
+        }
+
+        private Frame GetPreviousFrame()
+        {
+            if (this.Frames.Count > 1)
+            {
+                return this.Frames[this.Frames.Count - 2];
+            }
+
+            return null;
+        }
+
+        public List<Frame> Frames { get; }
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace BowlingGame.Models
 {
-    public class Throw
+    public class Roll
     {
-        public Throw(int numberOfPinsKnocked)
+        public Roll(int numberOfPinsKnocked)
         {
             this.NumberOfPinsKnocked = numberOfPinsKnocked;
         }

@@ -5,37 +5,48 @@
 
     public class Frame
     {
-        private readonly List<Throw> throws;
-
         public Frame()
         {
-            this.throws = new List<Throw>();
+            this.Attempts = new List<Roll>();
         }
 
-        public int CalculateScore()
+        public bool IsComplete()
         {
-            return this.throws.Sum(x => x.NumberOfPinsKnocked);
+            return this.Attempts.Count == 2 || this.IsStrike();
         }
 
         public bool IsSpare()
         {
-            return this.CalculateScore() == 10
-                   && this.GetNumberOfTries() == 2;
+            return this.NumberOfPinsKnocked == 10 && this.Attempts.Count == 2;
         }
 
-        public bool HasExceededNumberOfTries()
+        public bool IsStrike()
         {
-            return this.throws.Count >= 2;
+            return this.NumberOfPinsKnocked == 10 && this.Attempts.Count == 1;
         }
 
-        public int GetNumberOfTries()
+        public void RecordRollResult(Roll roll)
         {
-            return this.throws.Count;
+            this.Attempts.Add(roll);
         }
 
-        public void RecordThrowAttempt(Throw @throw)
+        public void ApplyBonusPoints(int points)
         {
-            this.throws.Add(@throw);
+            this.BonusPoints = points;
         }
+
+        public int NumberOfPinsKnocked
+        {
+            get
+            {
+                return this.Attempts.Sum(x => x.NumberOfPinsKnocked);
+            }
+        }
+
+        public int BonusPoints { get; private set; }
+
+        public List<Roll> Attempts { get; }
+
+        public int TotalPoints => this.NumberOfPinsKnocked + this.BonusPoints;
     }
 }
