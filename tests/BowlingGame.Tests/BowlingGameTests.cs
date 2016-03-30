@@ -162,7 +162,6 @@
             public void Then_The_Third_Frames_Points_Are_Set_Correctly()
             {
                 Assert.That(this.game.Frames[2].NumberOfPinsKnocked, Is.EqualTo(5));
-                Assert.That(this.game.Frames[1].BonusPoints, Is.EqualTo(1));
             }
         }
 
@@ -225,7 +224,6 @@
             {
                 var frame = this.game.Frames[1];
                 Assert.That(frame.NumberOfPinsKnocked, Is.EqualTo(5));
-                Assert.That(this.game.Frames[0].BonusPoints, Is.EqualTo(5));
             }
 
             [Test]

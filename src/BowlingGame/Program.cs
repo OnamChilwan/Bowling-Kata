@@ -34,7 +34,7 @@
 
             foreach (var frame in game.Frames)
             {
-                Console.Write(frame.TotalPoints.ToString("00"));
+                //Console.Write(frame.TotalPoints.ToString("00"));
                 Console.Write("\t");
             }
 

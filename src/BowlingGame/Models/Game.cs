@@ -7,60 +7,69 @@
     {
         public Game()
         {
-            this.Frames = new List<Frame> { new Frame() };
+            this.Frames = new List<Frame>(10) { new Frame() };
         }
 
         public void Roll(int numberOfPinsKnocked)
         {
             var currentFrame = this.Frames.Last();
 
-            if (currentFrame.IsComplete())
+            if (currentFrame.IsComplete() && !this.IsLastFrame())
             {
                 currentFrame = new Frame();
                 this.Frames.Add(currentFrame);
             }
 
             currentFrame.RecordRollResult(new Roll(numberOfPinsKnocked));
-
-            this.ApplySpareBonusPoints();
-            this.ApplyStrikeBonusPoints();
         }
 
         public int CalculateScore()
         {
-            return this.Frames.Sum(x => x.TotalPoints);
-        }
+            var score = 0;
 
-        private void ApplySpareBonusPoints()
-        {
-            var currentFrame = this.Frames.Last();
-            var previousFrame = this.GetPreviousFrame();
-
-            if (previousFrame != null && previousFrame.IsSpare() && currentFrame.IsComplete())
+            foreach (var frame in this.Frames)
             {
-                previousFrame.ApplyBonusPoints(currentFrame.Attempts.First().NumberOfPinsKnocked);
-            }
-        }
+                score += frame.NumberOfPinsKnocked;
 
-        private void ApplyStrikeBonusPoints()
-        {
-            var currentFrame = this.Frames.Last();
-            var previousFrame = this.GetPreviousFrame();
+                if (frame.IsStrike())
+                {
+                    score += this.StrikeBonus(this.Frames.IndexOf(frame));
+                }
 
-            if (previousFrame != null && previousFrame.IsStrike() && currentFrame.IsComplete())
-            {
-                previousFrame.ApplyBonusPoints(currentFrame.NumberOfPinsKnocked);
-            }
-        }
-
-        private Frame GetPreviousFrame()
-        {
-            if (this.Frames.Count > 1)
-            {
-                return this.Frames[this.Frames.Count - 2];
+                if (frame.IsSpare())
+                {
+                    score += this.SpareBonus(this.Frames.IndexOf(frame));
+                }
             }
 
-            return null;
+            return score;
+        }
+
+        private int SpareBonus(int index)
+        {
+            return this.Frames[index + 1].Rolls[0].NumberOfPinsKnocked;
+        }
+
+        private bool IsLastFrame()
+        {
+            return this.Frames.Count == 10;
+        }
+
+        private int StrikeBonus(int index)
+        {
+            const int PenultimateRoll = 8;
+            var nextFrame = this.Frames[index + 1];
+            var bonus = nextFrame.NumberOfPinsKnocked;
+
+            if (index == PenultimateRoll)
+            {
+                var firstRoll = nextFrame.Rolls[0].NumberOfPinsKnocked;
+                var secondRoll = nextFrame.Rolls[1].NumberOfPinsKnocked;
+
+                bonus = firstRoll + secondRoll;
+            }
+
+            return bonus;
         }
 
         public List<Frame> Frames { get; }
