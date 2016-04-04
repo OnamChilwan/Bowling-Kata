@@ -42,7 +42,7 @@
             }
 
             [Test]
-            public void Then_The_Score_Is_Calculated_Correctly()
+            public void Then_The_Score_For_The_Frame_Is_Calculated_Correctly()
             {
                 var frame = this.game.Frames.Last();
 
@@ -133,35 +133,18 @@
             {
                 this.game = new Game();
 
-                this.game.Roll(1);
-                this.game.Roll(4);
+                this.game.Roll(8);
+                this.game.Roll(2);
 
                 this.game.Roll(6);
-                this.game.Roll(4);
-
-                this.game.Roll(1);
-                this.game.Roll(4);
             }
 
             [Test]
             public void Then_The_First_Frames_Points_Are_Set_Correctly()
             {
-                var frame = this.game.Frames.First();
-                Assert.That(frame.NumberOfPinsKnocked, Is.EqualTo(5));
-            }
+                var score = this.game.CalculateScore();
 
-            [Test]
-            public void Then_The_Second_Frames_Points_Are_Set_Correctly()
-            {
-                var frame = this.game.Frames[1];
-                Assert.That(frame.NumberOfPinsKnocked, Is.EqualTo(10));
-                Assert.That(frame.IsSpare, Is.True);
-            }
-
-            [Test]
-            public void Then_The_Third_Frames_Points_Are_Set_Correctly()
-            {
-                Assert.That(this.game.Frames[2].NumberOfPinsKnocked, Is.EqualTo(5));
+                Assert.That(score, Is.EqualTo(22));
             }
         }
 
@@ -206,30 +189,14 @@
 
                 this.game.Roll(4);
                 this.game.Roll(1);
-
-                this.game.Roll(3);
-                this.game.Roll(3);
             }
 
             [Test]
-            public void Then_The_First_Frames_Points_Are_Set_Correctly()
+            public void Then_The_Score_Is_Calculated_Correctly()
             {
-                var frame = this.game.Frames.First();
-                Assert.That(frame.NumberOfPinsKnocked, Is.EqualTo(10));
-                Assert.That(frame.IsStrike, Is.True);
-            }
+                var score = this.game.CalculateScore();
 
-            [Test]
-            public void Then_The_Second_Frames_Points_Are_Set_Correctly()
-            {
-                var frame = this.game.Frames[1];
-                Assert.That(frame.NumberOfPinsKnocked, Is.EqualTo(5));
-            }
-
-            [Test]
-            public void Then_The_Third_Frames_Points_Are_Set_Correctly()
-            {
-                Assert.That(this.game.Frames[2].NumberOfPinsKnocked, Is.EqualTo(6));
+                Assert.That(score, Is.EqualTo(20));
             }
         }
 
